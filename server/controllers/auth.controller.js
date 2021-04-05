@@ -213,7 +213,7 @@ exports.question = (req, res, next) => {
     const quiz = req.query.quiz;
     var condition = quiz ? { quiz: { $regex: new RegExp(quiz), $options: "i" } } : {};
   
-    Q.find(quiz)
+    Quiz.find(quiz)
       .then(data => {
         res.send(data);
       })
@@ -281,29 +281,25 @@ exports.findStats = (req, res) => {
     });
 };
 
-// Find a single Quiz with an id
+// Find a single Quiz with an id and group
 exports.groupStats = (req, res) => {
-  const id = req.params.id;
+  const quiz_id = req.params.id;
 
   History.aggregate(
     [
 
       {
-        $match :{ "quiz_id" : "ABC123"}
+        $match :{ "quiz_id" : quiz_id}
       },
 
       {
         $group: 
         {
-          // "_id" : {
-          // "question_answer_id" : "$quiz_answers.student_answers.question_answer_id",
-          "_id" : "$quiz_answers.student_answers.answer", 
-          // "answers": {$push: {"answer" : "$quiz_answers.student_answers.answer"}}
-          // }
+          "_id" : {
+            "answer": "$quiz_answers.student_answers.answer",
+            "explanation" :"$quiz_answers.student_answers.explanation"
+          }, 
         }
-      },
-      {
-        $match : {}
       }
 
     ]
@@ -348,6 +344,61 @@ exports.deleteQuiz = (req, res) => {
     });
 };
 
+exports.history = async (req,res) => {
+  let {quiz_id , quiz_answers } = req.body.answers;
+  let student_id = quiz_answers.student_id;
+
+  console.log(quiz_answers);
+
+  let find_quiz = await History.findOne({quiz_id})
+
+  if (!find_quiz) {
+      const find_quiz = new History({
+        quiz_id : quiz_id,
+        quiz_answers : quiz_answers
+      })
+
+      find_quiz.save()
+      .then(response => {
+        res.status(200).json({
+          success: true,
+          result: response
+        })
+      })
+      .catch(err => {
+        res.status(500).json({
+           errors: [{ error: err }]
+        });
+     });
+  }
+  else{
+        let find_student = await History.findOne({quiz_id: quiz_id , "quiz_answers.student_id" :student_id})
+
+        if(!find_student){
+          find_quiz.quiz_answers.push(quiz_answers);
+          find_quiz.save()
+          .then(response => {
+            res.status(200).json({
+              success: true,
+              result: response
+            })
+          })
+          .catch(err => {
+            res.status(500).json({
+               errors: [{ error: err }]
+            });
+         });
+        }
+        else{
+            return res.status(500).json({
+              errors: [{ error: "You have answered this quiz already" }]
+           });
+        }
+
+
+  }
+
+}
 
 exports.submitTeacherForm = (req, res, next) => {
   let { title, questions  } = req.body;

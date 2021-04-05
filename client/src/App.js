@@ -14,6 +14,8 @@ import Profile from "./components/profile.component";
 import BoardUser from "./components/board-user.component";
 import BoardAdmin from "./components/board-admin.component";
 import PostSubmitForm from "./components/postSubmitForm.component";
+import AllAnswers from "./components/all-answers.component";
+import AllQuestions from './components/allquestions.component';
 
 class App extends Component {
   constructor(props) {
@@ -59,11 +61,33 @@ class App extends Component {
              </li>
 
              {showAdminBoard && (
-               <li className="nav-item">
-                 <Link to={"/admin"} className="nav-link">
-                   Tableau Administrateur
-                 </Link>
-               </li>
+              <div>
+                <li className="nav-item">
+                  <Link to={"/admin"} className="nav-link">
+                    Tableau Administrateur
+                  </Link>
+                </li>
+               </div> 
+             )}
+
+            {showAdminBoard && (
+              <div>
+                <li className="nav-item">
+                  <Link to={"/questions"} className="nav-link">
+                    Questions Page
+                  </Link>
+                </li>
+               </div> 
+             )}
+
+            {showAdminBoard && (
+              <div>
+                <li className="nav-item">
+                  <Link to={"/answers"} className="nav-link">
+                    Answers Page
+                  </Link>
+                </li>
+               </div> 
              )}
 
               {currentUser && (
@@ -113,6 +137,8 @@ class App extends Component {
              <Route exact path="/register" component={Register} />
              <Route exact path="/profile" component={Profile} />
              <Route path="/user" component={BoardUser} />
+             <Route path="/questions" component={AllQuestions} />
+             <Route path="/answers" component={AllAnswers} />
              <Route path="/admin" component={BoardAdmin} />
              <Route path="/postSubmitForm" component={PostSubmitForm} />
            </Switch>
