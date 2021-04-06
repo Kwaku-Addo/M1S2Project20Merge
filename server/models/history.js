@@ -4,31 +4,12 @@ const Schema = mongoose.Schema;
 let quizSchema = new Schema({
     quiz_id: {
         type: String,
-        required: true
+        // required: true
     },
     quiz_answers : {
-        students: [{
-            student_id: {
-                type: String,
-                required: true
-            },
-            student_answers: [
-                {
-                question_answer_id: {
-                    type: String,
-                    required: true
-                    },
-                answer: {
-                    type: String,
-                    required: true
-                    },
-                explanation: {
-                    type: String,
-                    required: true
-                    }
-            }]
-        }]
-    }  
+        type: Array,
+        // required: true
+    }
 }, {timestamps: true,
     collection: 'history'
 })

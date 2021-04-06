@@ -16,7 +16,7 @@ let quizSchema = new Schema({
         // required: true
     },
 }, {timestamps: true,
-    collection: 'testquiz'
+    collection: 'quizzes'
 })
 
 module.exports = mongoose.model('Quiz', quizSchema);

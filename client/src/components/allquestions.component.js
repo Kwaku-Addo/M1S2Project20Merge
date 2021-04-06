@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react';
 import Axios from 'axios';
 import {FaTimes} from 'react-icons/fa'
+import AuthService from "../services/auth.service";
 
 
 const AllQuestions = () => {
@@ -9,7 +10,8 @@ const AllQuestions = () => {
     const [currentIndex, setcurrentIndex] = useState(-1);
     const [radioOptions, setradioOptions] = useState({})
     const [checkedItems, setCheckedItems] = useState([]); 
-
+    const [currentUser, setcurrentUser] = useState(AuthService.getCurrentUser()) 
+    
     // LOAD ALL QUIZZES FROM DATABASE ON PAGE REFRESH AND SET RESPONSE INTO AN ARRAY
     useEffect(() => {
         Axios.get('http://localhost:5050/api/findAllQ').then((response) => {
@@ -50,14 +52,26 @@ const AllQuestions = () => {
 
     // SET EXPLANATION TOGETHER WITH ANSWERS AND QUESTION NUMBER
     const setCheckbox = (value, checked, question_id, question_title, quiz_id) => {
-        setCheckedItems([
-            ...checkedItems,
-             {
-                question_answer_id : question_id,
-                answer: radioOptions[question_id],
-                explanation: value 
-            }
-        ]);
+
+
+        let checkedArray = checkedItems.map(x => {return {...x}})
+        const find_question = checkedArray.find(a => a.question_answer_id === question_id);
+        console.log(find_question)
+        if(find_question) {
+            checkedArray.find(a => a.question_answer_id === question_id).explanation = value;
+            setCheckedItems(checkedArray);
+        }
+        else{
+            setCheckedItems([
+                ...checkedItems,
+                 {
+                    question_answer_id : question_id,
+                    answer: radioOptions[question_id],
+                    explanation: value 
+                }
+            ]);
+        }
+        
     }
 
     // SUBMIT ANSWERS TO THE BACKEND
@@ -65,8 +79,8 @@ const AllQuestions = () => {
         const answers = {
             quiz_id : currentQuiz.quiz_id,
             quiz_answers : {
-            student_id : currentQuiz.quiz_id,
-            student_answers : checkedItems
+                student_id : currentUser.message.firstname+' '+currentUser.message.lastname,
+                student_answers : checkedItems
             }
         }
         console.log("Radio Answer: ", radioOptions);
@@ -76,9 +90,16 @@ const AllQuestions = () => {
             answers
           }).then((res) => {
                 console.log(res);
+                if(res){
+                    //   window.location.reload(false);
+                    setCheckedItems([]);
+                    setradioOptions({});
+                }
           }).catch(err => {
                 console.log(err);            
           });
+
+
     }
 
 
@@ -91,7 +112,7 @@ const AllQuestions = () => {
             setallQuizzes(allQuizzes.filter((question) => question._id !== id))
         })
         .catch(err => {
-            console.log(err.response); 
+            console.log(err); 
         });
     }; 
 

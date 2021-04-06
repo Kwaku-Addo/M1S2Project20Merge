@@ -138,7 +138,7 @@ class MyForm extends Component {
                     type="text"
                     className="form-control"
                     name="explanation"
-                    value = {element||''}
+                    value = {element.options_text||''}
                     onChange = {this.onChangeExplanation.bind(this, indexExplanation)}
                     validations = {[required]}
                     autoComplete = "off"
@@ -205,13 +205,11 @@ export default class BoardAdmin extends Component {
     this.state = {
       title: '',
       questions: [
-        // main
         // ['', []]
         {
+          question_id: '',
           question_title: '',
-          question_options: [
-            // {options_text : ''}
-          ]
+          question_options: []
         }
       
       ],
@@ -221,7 +219,8 @@ export default class BoardAdmin extends Component {
 
   handleQuestionChange(indexQuestion, question){
     let questions = [...this.state.questions];
-    questions[indexQuestion].question_title = question
+    questions[indexQuestion].question_title = question;
+    questions[indexQuestion].question_id = indexQuestion+1;
     this.setState({
       questions
     });
@@ -230,8 +229,11 @@ export default class BoardAdmin extends Component {
   handleExplanationChange(indexQuestion, indexExplanation, explanation){
     let questions = [...this.state.questions];
      //questions[indexQuestion][1][indexExplanation] = explanation;
-    questions[indexQuestion].question_options[indexExplanation] = explanation;
-    //questions[indexQuestion].question_options[indexExplanation].options_id = indexExplanation + 1;
+    questions[indexQuestion].question_options[indexExplanation].options_text = explanation;
+    
+    let alphabet = String.fromCharCode(96 + (indexExplanation+1));
+    questions[indexQuestion].question_options[indexExplanation].options_id = alphabet;
+    
     this.setState({
       questions
     })
@@ -256,7 +258,7 @@ export default class BoardAdmin extends Component {
 
   handleAddExplanationClick(indexQuestion){
     let questions = [...this.state.questions];
-    questions[indexQuestion].question_options.push('');
+    questions[indexQuestion].question_options.push({options_text : ''});
     this.setState({
       questions
     })
@@ -264,7 +266,7 @@ export default class BoardAdmin extends Component {
 
   handleRemoveExplanationClick(indexQuestion, indexExplanation){
     let questions = [...this.state.questions];
-    questions[indexQuestion][1].splice(indexExplanation, 1);
+    questions[indexQuestion].question_options.splice(indexExplanation, 1);
     this.setState({
       questions
     });
@@ -295,7 +297,12 @@ export default class BoardAdmin extends Component {
 
         this.setState({
           message: resMessage,
-          questions: []
+          questions: [
+            {
+              question_title: '',
+              question_options: []
+            }
+          ]
         });
       }
     );
