@@ -1,6 +1,15 @@
 import {useState, useEffect} from 'react';
 import Axios from 'axios';
 import {FaTimes} from 'react-icons/fa'
+import Grid from '@material-ui/core/Grid';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import CardContent from '@material-ui/core/CardContent';
+import IconButton from '@material-ui/core/IconButton';
+import MoreVert from '@material-ui/icons/MoreVert';
+import BarChart from './BarChart';
+import { Button, Container } from '@material-ui/core';
+import DoughnutChart from './DoughnutChart';
 
 const AllAnswers = () => {
     const [allAnswers, setallAnswers] = useState([]);
@@ -123,6 +132,28 @@ const AllAnswers = () => {
         
     }
 
+    // RETRIEVE INTEGERS(VALUES) FOR EXPLANATIONS
+    const getExplanationValues = (explanation, keys) => {
+        let values = [];
+        keys.forEach(key => {
+            values.push(explanation[key])
+        })
+        return values;
+    }
+    // RETRIEVE INTEGERS(VALUES) FOR Y, MY, MN, N QUESTIONS
+    const getAnswerValues = (answer, keys) => {
+        let values = [];
+        keys.forEach(key => {
+            values.push(answer[key])
+        })
+        return values;
+    }
+
+    //RETRIEVE KEYS(LABELS) FOR CHART DATA
+    const getLabels = object => {
+        return Object.keys(object);
+    }
+
     const disp = () => {
         console.log(array);
         console.log(explanationStats)
@@ -157,8 +188,6 @@ const AllAnswers = () => {
                             {currentQuiz.quiz_answers && currentQuiz.quiz_answers.map((students, index) => (
                                 <div>
                                     <h4 onClick={() => setActiveStudent(students)}>{students.student_id}</h4>
-
-
                                 </div>
                             ))}
                         </div>
@@ -176,40 +205,62 @@ const AllAnswers = () => {
                                 </div>
                             ) : (<h4></h4>)}
                         </div>
-                        <button className='btn' onClick={disp}>Log</button>
-                        <button className='btn' onClick={stats}>Click for Stats</button>
+                        <Button disableElevation variant="contained" onClick={disp}>Log</Button> <span></span>
+                        <Button disableElevation variant="contained" onClick={stats}>Click for Stats</Button>
 
-                        <div className="float-container">
+                        <Container>
                             {array ? (
-                                <div className="float-child">
-                                    {array && array.map((answer, index) => (
-                                        <div >
-                                            <h4 className="float-container-noborder">{index+1}{'. '}</h4>
-                                            {Object.keys(answer).map(key => (
-                                            <h4 className="float-child-noborder-answers">{key}{' : '}{answer[key]}</h4>
-                                            ))}
-                                        </div>
+                                <div>
+                                    <Grid container spacing={3}>
+                                        {array && array.map((answer, index) => (
+                                            <Grid item sm={12} md={6} lg={4} >
+                                                <Card elevation={2}>
+                                                    <CardHeader
+                                                        action={
+                                                            <IconButton>
+                                                                <MoreVert />
+                                                            </IconButton>
+                                                        }
+                                                        title="Graphique en anneau"
+                                                        subheader={"Question. " + (index + 1)} 
+                                                    />
+                                                    <CardContent>
+                                                        <DoughnutChart labels={getLabels(answer)} answerValues={getAnswerValues(answer, getLabels(answer))} />
+                                                    </CardContent>
+                                                </Card>
+                                            </Grid>
 
-                                    ))}
+                                        ))}
+                                    </Grid>
                                 </div>
                                                         
                                 ) : (<h4></h4>)}
 
                             {explanationStats ? (
-                                <div className="float-child">
-                                    {explanationStats && explanationStats.map((explanation, index) => (
-                                        <div >
-                                            <h4 className="float-container-noborder">{index+1}{'. '}</h4>
-                                            {Object.keys(explanation).map(key => (
-                                            <h4 className="float-child-noborder">{key}{' : '}{explanation[key]}</h4>
+                                <div>
+                                        <Grid container spacing={3} >
+                                            {explanationStats && explanationStats.map((explanation, index) => (
+                                                <Grid item sm={12} md={6} lg={4}>
+                                                    <Card elevation={2}>
+                                                        <CardHeader
+                                                        action={
+                                                            <IconButton>
+                                                                <MoreVert/>
+                                                            </IconButton>
+                                                        } 
+                                                        title="Diagramme à bandes"
+                                                        subheader={`Question. ${index + 1}`}
+                                                        />
+                                                        <CardContent>
+                                                            <BarChart explanationLabels={getLabels(explanation)} explanationValues={getExplanationValues(explanation, getLabels(explanation))} />
+                                                        </CardContent>
+                                                    </Card>
+                                                </Grid>
                                             ))}
-                                        </div>
-
-                                    ))}
-                                </div>
-                                                        
+                                        </Grid>
+                                </div>         
                                 ) : (<h4></h4>)}
-                        </div>    
+                        </Container>    
                     </div>
                 ) : (<h4>Please Select A Quiz to view Answers</h4>)}
             </div>   
@@ -217,4 +268,4 @@ const AllAnswers = () => {
     )
 }
 
-export default AllAnswers
+export default AllAnswers;
